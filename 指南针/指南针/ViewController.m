@@ -7,24 +7,47 @@
 //
 
 #import "ViewController.h"
-#import "AppDelegate.h"
+#import <CoreLocation/CoreLocation.h>
 
-@interface ViewController ()
 
+@interface ViewController ()<CLLocationManagerDelegate>
+@property (nonatomic, weak) IBOutlet UIImageView *compassImageView;
+
+//位置管理器
+@property (nonatomic, strong)  CLLocationManager *locManager;
 @end
 
 @implementation ViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+    
+    //仅仅获取用户朝向,不用申请用户权限
+    //开始更新用户朝向
+    [self.locManager startUpdatingHeading];
+
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+//当更新用户的朝向的时候会调用该代理方法
+
+-(void)locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading{
+
+    //获取磁北方向,把角度值转化为弧度值
+    CGFloat angle=newHeading.magneticHeading *(M_PI/180);
     
-   
+    //旋转图片
+    self.compassImageView.transform=CGAffineTransformMakeRotation(-angle);
+
+}
+
+#pragma mark- 位置管理器懒加载
+-(CLLocationManager *)locManager{
+    if (_locManager == nil) {
+        _locManager = [[CLLocationManager alloc] init];
+        _locManager.delegate=self;
+    }
+    return _locManager;
+
 }
 
 @end
